@@ -9,8 +9,13 @@ import java.util.Map;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Parser;
-import com.nodeunify.jupiter.datastream.v1.Quote;
+import com.nodeunify.jupiter.datastream.v1.FutureData;
+import com.nodeunify.jupiter.datastream.v1.IndexData;
+import com.nodeunify.jupiter.datastream.v1.OrderQueue;
+import com.nodeunify.jupiter.datastream.v1.StockData;
+import com.nodeunify.jupiter.datastream.v1.Transaction;
 
+import org.apache.commons.math3.geometry.partitioning.BSPTreeVisitor.Order;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
@@ -50,7 +55,15 @@ public class KafkaIO {
         sparkConfProps = (LinkedHashMap<String, String>) sparkProps.get("conf");
 
         SparkConf conf = new SparkConf().setAll(JavaConversions.mapAsScalaMap(sparkConfProps));
-        List<Class<?>> classes = Arrays.<Class<?>>asList(Quote.class);
+        // Register all supported data types of jupiterapis
+        List<Class<?>> classes = Arrays.<Class<?>>asList(
+            StockData.class,
+            FutureData.class,
+            IndexData.class,
+            Order.class,
+            OrderQueue.class,
+            Transaction.class
+        );
         conf.registerKryoClasses((Class<?>[]) classes.toArray());
         // @formatter:off
         spark = SparkSession
